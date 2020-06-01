@@ -1,12 +1,16 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Scanner;
+import java.io.*;
 
 public class TextEditor implements ActionListener
 {
     // Variable holds bounds of the screen
     Rectangle screenBounds;
     
+    static JFrame frame;
+
     // JPanel and its appropriate variables
     JPanel contentPane;
     JTextArea textArea;
@@ -15,11 +19,18 @@ public class TextEditor implements ActionListener
     // JMenuBar and its appropriate variables
     JMenuBar jMenuBar;
     JMenu jMenuFile, jMenuEdit;
+    JMenuItem[] jMenuFileItems;
+
+    JOptionPane dialogPanel;
 
     // Constructor
     public TextEditor()
     {
         screenBounds = getBoundsOfScreen();
+
+        jMenuFileItems = new JMenuItem[2];
+
+        dialogPanel = new JOptionPane();
     }
 
     // Creates a JPanel with a scrollable text area
@@ -42,6 +53,13 @@ public class TextEditor implements ActionListener
         jMenuFile = new JMenu("File");
         jMenuEdit = new JMenu("Edit");
 
+        jMenuFileItems[0] = new JMenuItem("Open File");
+        jMenuFileItems[0].addActionListener(this);
+        jMenuFileItems[1] = new JMenuItem("Save and Close");
+
+        for (int menuItem = 0; menuItem < jMenuFileItems.length; menuItem++)
+            jMenuFile.add(jMenuFileItems[menuItem]);
+
         jMenuBar.add(jMenuFile);
         jMenuBar.add(jMenuEdit);
 
@@ -54,7 +72,7 @@ public class TextEditor implements ActionListener
         TextEditor textEditor = new TextEditor();
 
         // Sets up frame for text editor
-        JFrame frame = new JFrame("NoteBook");
+        frame = new JFrame("NoteBook");
 
         frame.setJMenuBar(textEditor.createJMenuBar());
         frame.setContentPane(textEditor.createJPanel());
@@ -68,7 +86,44 @@ public class TextEditor implements ActionListener
     // Any action performed is dealt with here
     public void actionPerformed(ActionEvent e)
     {
+        // if action occurs on Open File in File menu
+        if (e.getSource() == jMenuFileItems[0])
+        {
+            try
+            {
+                openFile(); // attempts to open file
+            }
+            catch (IOException ioe)
+            {
+                displayError(ioe); // if file not found, displays an error
+            }
+        }
+    }
 
+    // Opens a file in this directory when the file name is inputted
+    public void openFile() throws IOException
+    {
+        // asks for file name
+        String fileName = dialogPanel.showInputDialog("What file do you want to open?");
+
+        Scanner file = new Scanner(new File(fileName));
+
+        // while file has another line
+        while (file.hasNext())
+        {
+            // sets the text area in the text editor to the contents of the file
+            String oneLine = file.nextLine();
+            textArea.append(oneLine + "\n");
+        }
+    }
+
+    // displays an error depending on the type of exception passed through
+    public void displayError(Exception e)
+    {
+        if (e instanceof IOException)
+            dialogPanel.showMessageDialog(frame, "File does not exist in this directory.");
+        else 
+            dialogPanel.showMessageDialog(frame, "Error occurred.");
     }
 
     // Method returns a Rectangle containing the width and height of the display
