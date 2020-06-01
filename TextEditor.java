@@ -166,6 +166,7 @@ public class TextEditor implements ActionListener
             outputStream.println(currentFileData.nextLine());
 
         outputStream.close();
+        currentFileOpen = null;
 
     }
 
@@ -174,6 +175,8 @@ public class TextEditor implements ActionListener
     {
         if (e instanceof IOException)
             dialogPanel.showMessageDialog(frame, "File does not exist in this directory.");
+        else if (e instanceof NullPointerException)
+            dialogPanel.showMessageDialog(frame, "Cancelled operation.");
         else 
             dialogPanel.showMessageDialog(frame, "Error occurred.");
     }
