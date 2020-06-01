@@ -22,6 +22,7 @@ public class TextEditor implements ActionListener
     JMenuItem[] jMenuFileItems;
 
     JOptionPane dialogPanel;
+    String currentFileOpen;
 
     // Constructor
     public TextEditor()
@@ -31,6 +32,8 @@ public class TextEditor implements ActionListener
         jMenuFileItems = new JMenuItem[2];
 
         dialogPanel = new JOptionPane();
+
+        currentFileOpen = null;
     }
 
     // Creates a JPanel with a scrollable text area
@@ -38,6 +41,8 @@ public class TextEditor implements ActionListener
     {
         contentPane = new JPanel();
         textArea = new JTextArea(screenBounds.height / 20, screenBounds.width / 15);
+        textArea.setTabSize(2);
+
         scrollArea = new JScrollPane(textArea);
 
         contentPane.add(scrollArea);
@@ -49,14 +54,18 @@ public class TextEditor implements ActionListener
     // Creates a JMenuBar with options for the text area
     public JMenuBar createJMenuBar()
     {
+        // initializes all needed JMenuBar items
         jMenuBar = new JMenuBar();
         jMenuFile = new JMenu("File");
         jMenuEdit = new JMenu("Edit");
 
+        // Creates options and action listeners in the File JMenu
         jMenuFileItems[0] = new JMenuItem("Open File");
         jMenuFileItems[0].addActionListener(this);
         jMenuFileItems[1] = new JMenuItem("Save and Close");
+        jMenuFileItems[1].addActionListener(this);
 
+        // adds items to File JMenu
         for (int menuItem = 0; menuItem < jMenuFileItems.length; menuItem++)
             jMenuFile.add(jMenuFileItems[menuItem]);
 
@@ -86,7 +95,7 @@ public class TextEditor implements ActionListener
     // Any action performed is dealt with here
     public void actionPerformed(ActionEvent e)
     {
-        // if action occurs on Open File in File menu
+        // if action occurs on 'Open File' in File menu
         if (e.getSource() == jMenuFileItems[0])
         {
             try
@@ -97,7 +106,30 @@ public class TextEditor implements ActionListener
             {
                 displayError(ioe); // if file not found, displays an error
             }
+            catch (NullPointerException npe)
+            {
+                displayError(npe);
+            }
+        } 
+        
+        // if actions occurs on 'Save and Close' in File menu
+        if (e.getSource() == jMenuFileItems[1]) 
+        {
+            try
+            {
+                saveAndClose(); // attemps to save file
+            }
+            catch (IOException ioe)
+            {
+                displayError(ioe); // if no file found, displays an error
+            }
+            catch (NullPointerException npe)
+            {
+                displayError(npe); 
+            }
+
         }
+
     }
 
     // Opens a file in this directory when the file name is inputted
@@ -105,6 +137,7 @@ public class TextEditor implements ActionListener
     {
         // asks for file name
         String fileName = dialogPanel.showInputDialog("What file do you want to open?");
+        currentFileOpen = fileName;
 
         Scanner file = new Scanner(new File(fileName));
 
@@ -115,6 +148,25 @@ public class TextEditor implements ActionListener
             String oneLine = file.nextLine();
             textArea.append(oneLine + "\n");
         }
+    }
+
+    // Saves all the text in the text area to the file currently open
+    public void saveAndClose() throws IOException
+    {
+        // if no file opened before, throws an exception
+        if (currentFileOpen.equals(null))
+            throw new IOException("No file name provided.");
+
+        PrintWriter outputStream = new PrintWriter(new FileWriter(currentFileOpen));
+        
+        Scanner currentFileData = new Scanner(textArea.getText());
+
+        // while there are more lines of data, it is printed to the file
+        while (currentFileData.hasNext())
+            outputStream.println(currentFileData.nextLine());
+
+        outputStream.close();
+
     }
 
     // displays an error depending on the type of exception passed through
