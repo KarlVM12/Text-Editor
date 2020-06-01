@@ -167,6 +167,7 @@ public class TextEditor implements ActionListener
 
         outputStream.close();
         currentFileOpen = null;
+        textArea.setText("");
 
     }
 
