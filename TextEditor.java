@@ -29,7 +29,7 @@ public class TextEditor implements ActionListener
     {
         screenBounds = getBoundsOfScreen();
 
-        jMenuFileItems = new JMenuItem[2];
+        jMenuFileItems = new JMenuItem[6];
 
         dialogPanel = new JOptionPane();
 
@@ -60,14 +60,21 @@ public class TextEditor implements ActionListener
         jMenuEdit = new JMenu("Edit");
 
         // Creates options and action listeners in the File JMenu
-        jMenuFileItems[0] = new JMenuItem("Open File");
-        jMenuFileItems[0].addActionListener(this);
-        jMenuFileItems[1] = new JMenuItem("Save and Close");
-        jMenuFileItems[1].addActionListener(this);
+        jMenuFileItems[0] = new JMenuItem("New File");
+        jMenuFileItems[1] = new JMenuItem("Open File");
+        jMenuFileItems[2] = new JMenuItem("Save");
+        jMenuFileItems[3] = new JMenuItem("Save as...");
+        jMenuFileItems[4] = new JMenuItem("Save and Exit");
+        jMenuFileItems[5] = new JMenuItem("Exit without Saving")
 
         // adds items to File JMenu
         for (int menuItem = 0; menuItem < jMenuFileItems.length; menuItem++)
+        {
+            jMenuFileItems[menuItem].addActionListener(this);
             jMenuFile.add(jMenuFileItems[menuItem]);
+            if (menuItem == 1 || menuItem == 5)
+                jMenuFile.addSeparator();
+        }
 
         jMenuBar.add(jMenuFile);
         jMenuBar.add(jMenuEdit);
@@ -96,7 +103,7 @@ public class TextEditor implements ActionListener
     public void actionPerformed(ActionEvent e)
     {
         // if action occurs on 'Open File' in File menu
-        if (e.getSource() == jMenuFileItems[0])
+        if (e.getSource() == jMenuFileItems[1])
         {
             try
             {
@@ -112,12 +119,12 @@ public class TextEditor implements ActionListener
             }
         } 
         
-        // if actions occurs on 'Save and Close' in File menu
-        if (e.getSource() == jMenuFileItems[1]) 
+        // if actions occurs on 'Save and Exit' in File menu
+        if (e.getSource() == jMenuFileItems[4]) 
         {
             try
             {
-                saveAndClose(); // attemps to save file
+                saveAndExit(); // attemps to save file
             }
             catch (IOException ioe)
             {
@@ -151,7 +158,7 @@ public class TextEditor implements ActionListener
     }
 
     // Saves all the text in the text area to the file currently open
-    public void saveAndClose() throws IOException
+    public void saveAndExit() throws IOException
     {
         // if no file opened before, throws an exception
         if (currentFileOpen.equals(null))
